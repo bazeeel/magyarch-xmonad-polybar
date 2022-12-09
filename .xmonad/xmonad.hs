@@ -12,6 +12,7 @@ import System.IO (Handle, hPutStrLn)
 import XMonad.Hooks.ManageHelpers(doFullFloat, doCenterFloat, isFullscreen, isDialog)
 import XMonad.Hooks.ServerMode
 import XMonad.Hooks.DynamicLog
+-- import XMonad.Util.Loggers
 import XMonad.Hooks.ManageDocks
 import XMonad.Hooks.Minimize
 import XMonad.Hooks.EwmhDesktops
@@ -25,6 +26,9 @@ import XMonad.Layout.Fullscreen (fullscreenFull)
 import XMonad.Layout.Grid
 import XMonad.Layout.Tabbed
 import XMonad.Layout.TwoPane
+import XMonad.Layout.ResizableTile
+import XMonad.Layout.Reflect (reflectHoriz)
+import XMonad.Layout.ThreeColumns
 import XMonad.Layout.NoBorders (noBorders, smartBorders)
 import XMonad.Layout.Gaps
 import XMonad.Layout.MultiToggle
@@ -35,6 +39,7 @@ import XMonad.Layout.LayoutCombinators
 --UTILS
 import XMonad.Util.Themes
 import XMonad.Util.EZConfig
+-- import XMonad.Util.CustomKeys
 import XMonad.Util.NamedScratchpad
 import XMonad.Util.SpawnOnce
 
@@ -88,7 +93,7 @@ myLayout = avoidStruts $ smartBorders $ spacingRaw True (Border 10 10 10 10) Tru
 
            mkToggle (NBFULL ?? NOBORDERS ?? EOT)
 
-           tiled ||| Mirror tiled ||| twopane ||| Grid ||| tabbed shrinkText myTabConfig ||| Full
+           tiled ||| ResizableTall 1 (3/100) (1/2) [] ||| reflectHoriz (ResizableTall 1 (3/100) (1/2) []) ||| twopane ||| Grid ||| tabbed shrinkText myTabConfig ||| ThreeColMid 1 (3/100) (1/2) ||| Full
 
      where
      -- default tiling algorithm partitions the screen into two panes
@@ -110,7 +115,7 @@ myLayout = avoidStruts $ smartBorders $ spacingRaw True (Border 10 10 10 10) Tru
 -- TABBED THEME
 
 myTabConfig = def {
-    fontName = "xft:JetBrains Mono Medium Nerd Font:size=16",
+    fontName = "xft:JetBrains Mono Medium Nerd Font:size=12",
     activeBorderColor = "#947cc3",
     activeTextColor = "#947cc3",
     activeColor = "#1a1a1a",
@@ -233,7 +238,7 @@ dbusOutput dbus str = do
 -- By default, do nothing.
 -- myStartupHook = return ()
 myStartupHook = do
-     spawnOnce "(sleep 1s && ~/.config/polybar/launch.sh) &"
+     spawnOnce "(sleep 1s && ~/.config/polybar/launch.sh)"
      spawnOnce "nm-applet &"
 
 ------------------------------------------------------------------------
@@ -286,7 +291,6 @@ defaults = def {
 ------------------------------------------------------------------------
 
 -- Key bindings. Add, modify or remove key bindings here
-
 myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
 
     -- launch a terminal
@@ -308,10 +312,10 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- , ((modm,               xK_k     ), windows W.focusUp  )
 
     -- Move focus to the master window
-    , ((modm,               xK_m     ), windows W.focusMaster  )
+   -- , ((modm,               xK_m     ), windows W.focusMaster  )
 
     -- Swap the focused window and the master window
-    -- , ((modm .|. shiftMask, xK_m     ), windows W.swapMaster)
+     , ((modm .|. shiftMask, xK_m     ), windows W.swapMaster)
 
     -- Swap the focused window with the next window
     -- , ((modm .|. shiftMask, xK_j     ), windows W.swapDown  )
@@ -319,14 +323,12 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     -- Swap the focused window with the previous window
     -- , ((modm .|. shiftMask, xK_k     ), windows W.swapUp    )
 
-    -- Shrink the master area
-    -- , ((modm,               xK_h     ), sendMessage Shrink)
-
-    -- Expand the master area
-    -- , ((modm,               xK_l     ), sendMessage Expand)
+    -- resizing the master/slave ratio
+    , ((modm,               xK_h     ), sendMessage Shrink) -- %! Shrink the master area
+    , ((modm,               xK_l     ), sendMessage Expand) -- %! Expand the master area
 
     -- Push window back into tiling
-    -- , ((modm,               xK_t     ), withFocused $ windows . W.sink)
+     , ((modm,               xK_t     ), withFocused $ windows . W.sink)
 
     --  Jump directly to favorite layout
     , ((modm .|. shiftMask, xK_t), sendMessage $ JumpToLayout "Tabbed Simplest") -- jump directly to the Tabbed layout
@@ -367,7 +369,7 @@ myKeys conf@(XConfig {XMonad.modMask = modm}) = M.fromList $
     , ((modm .|. shiftMask, xK_q     ), io (exitWith ExitSuccess))
 
     -- Restart xmonad
-    -- , ((modm              , xK_g     ), spawn "xmonad --recompile; xmonad --restart")
+    -- , ((modm .|. shiftMask, xK_g     ), spawn "xmonad --recompile; xmonad --restart")
 
     -- Run xmessage with a summary of the default keybindings (useful for beginners)
     -- , ((modm .|. shiftMask, xK_slash ), spawn ("echo \"" ++ help ++ "\" | xmessage -file -"))

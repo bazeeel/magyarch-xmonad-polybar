@@ -43,34 +43,6 @@ super + shift + x
     killall ffmpeg
 
 
-# Xmonad (wm) related shortcuts
-
-# Kill window
-#super + q
-#    xmonadctl kill
-
-# Push floating windows back to tilling
-super + t
-    xmonadctl sink
-
-# Expand and Shrink the master area
-super + {h,l}
-    {xmonadctl expand,xmonadctl shrink}
-
-# Focus up,down,master
-super + {k,j}
-    xmonadctl focus-{up,down}
-
-super + shift + {k,j}
-    {xmonadctl swap-{up,down}
-
-# Swap master
-super + shift + m
-    xmonadctl swap-master
-
-
-
-
 #################################################
            # ALT + KEYS#
 ################################################
